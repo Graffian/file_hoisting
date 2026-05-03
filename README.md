@@ -1,1 +1,3 @@
 TODO : Right now we are recieving multipart data and in multipart data it has boundaries so if we r writing data we are writing data along w boundaries not the exact bytes of that multipart data so we have to fix that
+
+WHAT I FIXED : While reading the bytes where the image was stored and where the image bytes ended we may come across "\0" in the image bytes and that's when strstr() function would fail us so i created a haystack needle function that takes care of this it acts as a sliding windows of needle length in the haystack to find exactly where it is and returns the pointer to it

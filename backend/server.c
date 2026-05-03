@@ -3,6 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+char *find_bytes(char *haystack , int hlen , char *needle , int nlen){
+    for (int i=0 ; i<=(hlen-nlen) ; i++){
+        if (memcmp(haystack+i , needle , nlen) == 0){
+            return haystack+i;
+        }
+    }
+
+    return NULL;
+
+}
+
+
 int main(){
     WSADATA wsa;
     WSAStartup(MAKEWORD(2,2) , &wsa);
@@ -51,12 +64,13 @@ int main(){
                         total+=actual_body_recieved;
                     }
                     body[total] = '\0';
-                    char *image_start = strstr(body , "\r\n\r\n");
+                    char *image_start = find_bytes(body , total , "\r\n\r\n" , 4);
                     if (!image_start){
                         free(body);
                         closesocket(client_socket);
                     }
                     image_start+=4;
+
                     char boundary[256];
                     char *boundary_pos = strstr(buffer , "boundary=");
                     if(!boundary_pos){
@@ -67,7 +81,8 @@ int main(){
                     sscanf(boundary_pos , "%255s" , boundary);
                     char end_marker[256];
                     snprintf(end_marker , sizeof(end_marker) , "\r\n--%s--" , boundary);
-                    char *image_end = strstr(image_start , end_marker);
+                    int remaining = total - (int)(image_start - body);
+                    char *image_end = find_bytes(image_start , remaining , end_marker , strlen(end_marker));
                     int image_size = (int)(image_end - image_start);
                     FILE *fp = fopen("../storage/test.jpg" , "wb");
                     fwrite(image_start , 1 , image_size , fp);
