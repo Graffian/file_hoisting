@@ -51,9 +51,28 @@ int main(){
                         total+=actual_body_recieved;
                     }
                     body[total] = '\0';
-                    fwrite(body , 1 , total , fp);
+                    char *image_start = strstr(body , "\r\n\r\n");
+                    if (!image_start){
+                        free(body);
+                        closesocket(client_socket);
+                    }
+                    image_start+=4;
+                    char boundary[256];
+                    char *boundary_pos = strstr(buffer , "boundary=");
+                    if(!boundary_pos){
+                        free(body);
+                        closesocket(client_socket);
+                    }
+                    boundary_pos+=9;
+                    sscanf(boundary_pos , "%255s" , boundary);
+                    char end_marker[256];
+                    snprintf(end_marker , sizeof(end_marker) , "\r\n--%s--" , boundary);
+                    char *image_end = strstr(image_start , end_marker);
+                    int image_size = (int)(image_end - image_start);
+                    FILE *fp = fopen("../storage/test.jpg" , "wb");
+                    fwrite(image_start , 1 , image_size , fp);
                     fclose(fp);
-                    printf("%d bytes written" , total);
+                    printf("%d bytes written\n" , image_size);
                     printf("BODY RECIEVED IS : %d" , sizeof(body));
                     free(body);
                 }
