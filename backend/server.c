@@ -2,8 +2,6 @@
 #include <winsock2.h>
 #include <stdlib.h>
 #include <string.h>
-
-
 char *find_bytes(char *haystack , int hlen , char *needle , int nlen){
     for (int i=0 ; i<=(hlen-nlen) ; i++){
         if (memcmp(haystack+i , needle , nlen) == 0){
@@ -14,7 +12,6 @@ char *find_bytes(char *haystack , int hlen , char *needle , int nlen){
     return NULL;
 
 }
-
 
 int main(){
     WSADATA wsa;
